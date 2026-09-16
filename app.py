@@ -25,7 +25,6 @@ from src.visualization import (
     draw_segmentation_overlay,
     draw_detection_result,
     draw_full_result,
-    create_mask_image,
 )
 from src.gradcam import GradCAMEngine
 from src.utils import (
@@ -354,10 +353,10 @@ def main():
             st.error(f"Inference error: {e}")
             st.stop()
 
-        # Grad-CAM
+        # Grad-CAM Explainability
         gradcam_result = None
         if enable_gradcam:
-            with st.spinner("Computing Grad-CAM..."):
+            with st.spinner("Computing Grad-CAM Saliency..."):
                 engine = get_gradcam_engine()
                 gradcam_result = engine.explain(
                     image_rgb=img_rgb,
@@ -442,18 +441,16 @@ def main():
         img_rgb, result.boxes, result.scores, result.class_ids, result.masks, class_names
     )
 
-    # Third image: Grad-CAM Saliency or Tumor Mask
+    # Third image: Grad-CAM Saliency
     has_gradcam = gradcam_result is not None and gradcam_result.is_valid
     if has_gradcam:
         third_image = gradcam_result.overlay
         third_title = "Grad-CAM Saliency"
         third_caption = f"(c) Grad-CAM Saliency — {gradcam_result.target_class_name}"
     else:
-        third_image = create_mask_image(
-            result.masks, result.class_ids, img_rgb.shape[:2]
-        )
-        third_title = "Tumor Mask"
-        third_caption = f"(c) Tumor Mask — {top_class_name}"
+        third_image = img_rgb.copy()
+        third_title = "Grad-CAM Saliency"
+        third_caption = f"(c) Grad-CAM Saliency — {top_class_name}"
 
     # Render all three images side-by-side in one row (compact size)
     img_col1, img_col2, img_col3 = st.columns(3)
@@ -533,9 +530,9 @@ def main():
 
     with download_cols[2]:
         st.download_button(
-            "📥 Grad-CAM Result" if has_gradcam else "📥 Tumor Mask",
+            "📥 Grad-CAM Result",
             image_to_bytes(third_image),
-            file_name="gradcam_result.png" if has_gradcam else "tumor_mask.png",
+            file_name="gradcam_result.png",
             mime="image/png",
             use_container_width=True,
         )
