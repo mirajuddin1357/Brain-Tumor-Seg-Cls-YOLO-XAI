@@ -1,0 +1,9 @@
+# Core dependencies for Brain Tumor MRI Segmentation & Classification
+# CPU-compatible — no GPU/CUDA packages required
+
+streamlit>=1.30.0
+onnxruntime>=1.16.0
+numpy>=1.24.0
+opencv-python-headless>=4.8.0
+Pillow>=10.0.0
+matplotlib>=3.7.0
